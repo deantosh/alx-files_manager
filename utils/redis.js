@@ -1,11 +1,18 @@
 // Module contains the class RedisClient
-const redis = require('redis');
+import { createClient } from 'redis';
 
 class RedisClient {
   constructor() {
-    this.client = redis.createClient({
-      host: '127.0.0.1',
-      port: '6379'
+    this.client = createClient({
+      url: 'redis://127.0.0.1:6379'
+    });
+
+    this.connected = false;
+      console.log('not connected');  
+    // set flag to true
+    this.client.on('connect', () => {
+	console.log('Connected successfully');
+	this.connected = true;
     });
 
     // Handle errors when creating redis instance
@@ -16,8 +23,7 @@ class RedisClient {
 
   // Instance method: checks if redis connection is a success
   isAlive() {
-    // Check connection status
-    return this.client.connected;
+    return this.connected;
   }
 
   // Async method: takes key and returns its corresponding redis value
@@ -26,7 +32,7 @@ class RedisClient {
       const value = await new Promise((resolve, reject) => {
         this.client.get(key, (err, result) => {
           if (err) reject(err);
-            else resolve(result);
+          else resolve(result);
         });
       });
       return value;
@@ -54,6 +60,7 @@ class RedisClient {
       });
     });
   }
+}
 
 // Create and export an instance of RedisClient
 const redisClient = new RedisClient();
