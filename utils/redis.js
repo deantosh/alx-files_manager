@@ -7,11 +7,11 @@ class RedisClient {
       url: 'redis://127.0.0.1:6379'
     });
 
+    // Set flag to check if connection is successful
     this.connected = false;
-      console.log('not connected');  
-    // set flag to true
+
+    // set flag to true if connected successfully
     this.client.on('connect', () => {
-	console.log('Connected successfully');
 	this.connected = true;
     });
 
