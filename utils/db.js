@@ -19,12 +19,15 @@ class DBClient {
       useUnifiedTopology: true,
     });
 
+    // Flag - to check for connection
+    this.connected = false;
+      
     // Select database
     this.database = null;
     this.client.connect()
       .then(() => {
         this.database = this.client.db(db_name);
-        console.log(`Connected to database: ${db_name}`);
+        this.connected = true;
       })
       .catch((err) => {
         console.log('Error connecting to MongoDB:', err);
@@ -33,20 +36,13 @@ class DBClient {
 
   // Instance method: check if connection to db is successful or not
   isAlive() {
-    if (!this.database) {
-      return false;
-    }
-
-    // If the db exists, check if it's alive using ping
-    return this.database.admin().ping()
-      .then(() => true)
-      .catch (() => false);
+    return this.connected;
   }
 
   // Async method: returns number of documents in user collection
   async nbUsers() {
     const collection = this.database.collection('users');
-    return await collection.countDocuments()
+    return await collection.countDocuments();
   }
 
   // Async method: returns number of documents in files collection
