@@ -4,7 +4,7 @@ import { createClient } from 'redis';
 class RedisClient {
   constructor() {
     this.client = createClient({
-      url: 'redis://127.0.0.1:6379'
+      url: 'redis://127.0.0.1:6379',
     });
 
     // Set flag to check if connection is successful
@@ -12,7 +12,7 @@ class RedisClient {
 
     // set flag to true if connected successfully
     this.client.on('connect', () => {
-	this.connected = true;
+      this.connected = true;
     });
 
     // Handle errors when creating redis instance
