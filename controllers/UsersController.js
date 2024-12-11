@@ -55,6 +55,10 @@ export default class UsersController {
     const usersCollection = dbClient.database.collection('users');
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     // Return user email and id
     return res.status(200).json({ id: userId, email: user.email });
   }
