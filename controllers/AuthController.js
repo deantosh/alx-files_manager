@@ -41,7 +41,7 @@ export default class AuthController {
 
     // Store key in Redis
     try {
-      await redisClient.set(authToken, user.id.to_string(), 24 * 60 * 60);
+      await redisClient.set(authToken, user._id.toString(), 24 * 60 * 60);
       return res.status(200).json({ token });
     } catch (error) {
       return res.status(500).json({ error: 'Internal Server Error' });
@@ -50,7 +50,7 @@ export default class AuthController {
 
   static async getDisconnect(req, res) {
     // Get user token
-    const userToken = req.headers['X-Token'];
+    const userToken = req.headers['x-token'];
     if (!userToken) {
       return res.status(401).json({ error: 'Unathorized' });
     }

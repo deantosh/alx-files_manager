@@ -1,5 +1,7 @@
 /* eslint-disable import/no-named-as-default */
 import sha1 from 'sha1';
+import pkg from 'mongodb';
+const { ObjectId } = pkg;
 import Queue from 'bull/lib/queue.js';
 import dbClient from '../utils/db.js';
 import redisClient from '../utils/redis.js';
@@ -38,7 +40,7 @@ export default class UsersController {
   }
 
   static async getMe(req, res) {
-    const userToken = req.headers['X-Token'];
+    const userToken = req.headers['x-token'];
     if (!userToken) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -51,9 +53,9 @@ export default class UsersController {
 
     // Get user from mongodb
     const usersCollection = dbClient.database.collection('users');
-    const user = await usersCollection.findOne({ id: userId });
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
     // Return user email and id
-    return res.status(200).json({ email: user.email, userId });
+    return res.status(200).json({ id: userId, email: user.email });
   }
 }
