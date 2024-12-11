@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import sha1 from 'sha1';
 import redisClient from '../utils/redis.js';
 import dbClient from '../utils/db.js';
 
@@ -11,7 +12,7 @@ export default class AuthController {
     }
 
     // Get authHeader value
-    const base64Credentials = authHeader.split()[1];
+    const base64Credentials = authHeader.split(' ')[1];
 
     // Decode Base64 Header value to <email>:<password>
     const decodedCredentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
@@ -26,16 +27,24 @@ export default class AuthController {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    // Hash password and check if correct
+    const hashedPassword = sha1(password);
+    if (user.password !== hashedPassword) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     // Create user token
     const token = uuidv4();
 
     // Create key
-    authToken = `auth_${token}`;
+    const authToken = `auth_${token}`;
 
     // Store key in Redis
-    result = await redisClient.set(authToken, user.id, 24 * 60 * 60);
-    if (result) {
+    try {
+      await redisClient.set(authToken, user.id.to_string(), 24 * 60 * 60);
       return res.status(200).json({ token });
+    } catch (error) {
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 
@@ -47,12 +56,14 @@ export default class AuthController {
     }
 
     // Create key using token
-    key = `auth_${userToken}`;
+    const key = `auth_${userToken}`;
 
     // Delete token
-    result = await redisClient.del(key);
-    if (result) {
+    try {
+      await redisClient.del(key);
       return res.status(204).json({});
+    } catch (error) {
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 }
