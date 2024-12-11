@@ -1,11 +1,11 @@
 /* eslint-disable import/no-named-as-default */
 import sha1 from 'sha1';
 import pkg from 'mongodb';
-const { ObjectId } = pkg;
 import Queue from 'bull/lib/queue.js';
 import dbClient from '../utils/db.js';
 import redisClient from '../utils/redis.js';
 
+const { ObjectId } = pkg;
 const userQueue = new Queue('email sending');
 
 export default class UsersController {
