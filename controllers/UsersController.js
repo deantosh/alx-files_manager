@@ -1,9 +1,8 @@
-/* eslint-disable import/no-named-as-default */
 import sha1 from 'sha1';
 import pkg from 'mongodb';
-import Queue from 'bull/lib/queue.js';
-import dbClient from '../utils/db.js';
-import redisClient from '../utils/redis.js';
+import Queue from 'bull/lib/queue';
+import dbClient from '../utils/db';
+import redisClient from '../utils/redis';
 
 const { ObjectId } = pkg;
 const userQueue = new Queue('email sending');
