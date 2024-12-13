@@ -58,15 +58,15 @@ export default class AuthController {
     // Create key using token
     const key = `auth_${userToken}`;
 
+    // Handle: invalid token
+    const validToken = await redisClient.get(key);
+    if (!validToken) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     // Delete token
     try {
-      const result = await redisClient.del(key);
-
-      // Key does not exist
-      if (result === 0) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-
+      await redisClient.del(key);
       return res.status(204).json({});
     } catch (error) {
       return res.status(401).json({ error: 'Unauthorized' });
