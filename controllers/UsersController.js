@@ -1,11 +1,9 @@
 import sha1 from 'sha1';
 import pkg from 'mongodb';
-import Queue from 'bull/lib/queue';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
 const { ObjectId } = pkg;
-const userQueue = new Queue('email sending');
 
 export default class UsersController {
   static async postNew(req, res) {
@@ -34,7 +32,6 @@ export default class UsersController {
     const insertionInfo = await usersCollection.insertOne(newUser);
     const userId = insertionInfo.insertedId.toString();
 
-    userQueue.add({ userId });
     res.status(201).json({ email, id: userId });
   }
 

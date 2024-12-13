@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import sha1 from 'sha1';
-import redisClient from '../utils/redis.js';
-import dbClient from '../utils/db.js';
+import redisClient from '../utils/redis';
+import dbClient from '../utils/db';
 
 export default class AuthController {
   static async getConnect(req, res) {
@@ -63,7 +63,7 @@ export default class AuthController {
       await redisClient.del(key);
       return res.status(204).json({});
     } catch (error) {
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(401).json({ error: 'Unauthorized' });
     }
   }
 }
