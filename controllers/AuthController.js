@@ -52,7 +52,7 @@ export default class AuthController {
     // Get user token
     const userToken = req.headers['x-token'];
     if (!userToken) {
-      return res.status(401).json({ error: 'Unathorized' });
+      return res.status(401).json({ error: 'Unauthorized' });
     }
 
     // Create key using token
@@ -61,7 +61,7 @@ export default class AuthController {
     // Check if key is valid
     const tokenExists = await redisClient.get(key);
     if (!tokenExists) {
-      return res.status(401).json({ error: 'Unathorized' });
+      return res.status(401).json({ error: 'Unauthorized' });
     }
 
     // Delete token
