@@ -24,7 +24,7 @@ export default class FilesController {
       if (!userId) {
 	  return res.status(401).json({ error: 'Unauthorized' });
       }
-      const user = await dbClient.db.collection('users').findOne({ _id: new ObjectId(userId) });
+      const user = await dbClient.database.collection('users').findOne({ _id: new ObjectId(userId) });
 
       // Get file details
       const { name, type, parentId = '0', isPublic = false, data } = req.body
@@ -42,7 +42,7 @@ export default class FilesController {
 
       // Check parentId validity
       if (parentId !== '0') {
-        const parent = await dbClient.db.collection('files').findOne({ _id: new ObjectId(parentId) });
+        const parent = await dbClient.database.collection('files').findOne({ _id: new ObjectId(parentId) });
         if (!parent) {
           return res.status(400).json({ error: 'Parent not found' });
         }
@@ -58,13 +58,11 @@ export default class FilesController {
         type,
         parentId: parentId === '0' ? '0' : new ObjectId(parentId),
         isPublic,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       };
 
       if (type === 'folder') {
         // If the type is a folder, no data to save on disk
-        const result = await dbClient.db.collection('files').insertOne(fileDocument);
+        const result = await dbClient.database.collection('files').insertOne(fileDocument);
         return res.status(201).json({ id: result.insertedId, ...fileDocument });
       } else {
 	// Handle file or image
