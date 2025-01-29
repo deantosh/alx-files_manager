@@ -88,5 +88,80 @@ export default class FilesController {
       console.error('Error in file upload:', err);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
+
+    // New endpoint to publish a file
+  static async publishFile(req, res) {
+    try {
+      const userToken = req.headers['x-token'];
+      if (!userToken) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const key = `auth_${userToken}`;
+      const userId = await redisClient.get(key);
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      const user = await dbClient.database.collection('users').findOne({ _id: new ObjectId(userId) });
+
+      const { id } = req.params;
+
+      // Find file linked to the user
+      const file = await dbClient.database.collection('files').findOne({ _id: new ObjectId(id), userId: user._id });
+      if (!file) {
+        return res.status(404).json({ error: 'File not found' });
+      }
+
+      // Update isPublic field to true
+      await dbClient.database.collection('files').updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { isPublic: true } }
+      );
+
+      // Return the updated file
+      const updatedFile = await dbClient.database.collection('files').findOne({ _id: new ObjectId(id) });
+      return res.status(200).json(updatedFile);
+    } catch (err) {
+      console.error('Error publishing file:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+
+  // New endpoint to unpublish a file
+  static async unpublishFile(req, res) {
+    try {
+      const userToken = req.headers['x-token'];
+      if (!userToken) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const key = `auth_${userToken}`;
+      const userId = await redisClient.get(key);
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      const user = await dbClient.database.collection('users').findOne({ _id: new ObjectId(userId) });
+
+      const { id } = req.params;
+
+      // Find file linked to the user
+      const file = await dbClient.database.collection('files').findOne({ _id: new ObjectId(id), userId: user._id });
+      if (!file) {
+        return res.status(404).json({ error: 'File not found' });
+      }
+
+      // Update isPublic field to false
+      await dbClient.database.collection('files').updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { isPublic: false } }
+      );
+
+      // Return the updated file
+      const updatedFile = await dbClient.database.collection('files').findOne({ _id: new ObjectId(id) });
+      return res.status(200).json(updatedFile);
+    } catch (err) {
+      console.error('Error unpublishing file:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
   }
 }
